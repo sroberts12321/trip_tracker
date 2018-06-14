@@ -1,6 +1,4 @@
 
-
-
 //loads saved module 'express' a server framework
 const express = require('express')
 //sets an instance of 'express' module to the constant 'app'
@@ -8,6 +6,7 @@ const app = express()
 //load saved module 'mustache-express' a way of creating server side pages
 const mustacheExpress = require('mustache-express')
 
+const Trip = require('./trip')
 //load express-session module for saving the session of a user in a cookie
 var session = require('express-session')
 
@@ -48,22 +47,30 @@ app.set('view engine','mustache')
 
 
 app.get('/', (req, res)=>{
-    res.render('home')
+   res.render('pages/home')
+    
 })
 
 app.get('/trips', (req, res)=>{
     res.render('trips')
 })
 
-app.post('/trips', (req, res)=>{
-  let tripId = guid()
-  let title = req.body.title
-  let imageURL = req.body.imageURL
+app.post('/home', (req, res)=>{
+
+    //the code immediately below would create a new instance of the class Trip
+    //set equal to the variable trip
+    let tripId = guid()
+    req.body.tripId = tripId
+    let trip = new Trip(req.body.tripId, req.body.title, req.body.imageURL)
+    //creating a new object to append to an array
+    // let tripId = guid()
+    // let title = req.body.title
+    // let imageURL = req.body.imageURL
 
   // adding a new object into trips array
-  trips.push({ tripId : tripId, title : title, imageURL : imageURL })
-
-  // render the mustache page called trips
+  trips.push(trip)
+    console.log(trips)
+  // render the mustache page called home with the object triplisting
   res.render('home',{tripListing : trips})
 })
 
@@ -79,9 +86,9 @@ function validateLogin(req, res, next){
 //fire the validateLogin funciton, then next
 //next is the 'middleware' part
 //validate login does not need parentheses
-app.all('/admin/*', validateLogin, (req, res, next)=>{
+app.all('*/pages/', validateLogin, (req, res, next)=>{
     //if you don't call next it will never go to the next request
-    next()
+   next()
 })
 
 app.get('/admin/dashboard', (req, res)=>{
@@ -95,6 +102,29 @@ app.get('/admin/dashboard', (req, res)=>{
     }
 })
 
+
+app.get('/home', (req, res)=>{
+    res.render('home')
+})
+
+//calls the post method on the /deleteTrip path
+app.post('/deleteTrip',function(req,res){
+
+    let tripId = req.body.tripId
+
+    // give me all the trips where the tripId is
+    // not the one passed in the request
+    trips = trips.filter(function(trip){
+      return trip.tripId != tripId
+    })
+    
+    res.render('home',{tripListing : trips})
+  
+  })
+
+
+
+
 app.get('/login', (req, res)=>{
     res.render('login')
 })
@@ -104,13 +134,12 @@ app.post('/login', (req, res)=>{
     let password = req.body.password
 
     //validate that the username and password match
-
+    console.log(req.session.username)
     if(req.session){
         req.session.username = username
     }
 
-    res.render('home', {username : req.session.username})
-    res.redirect('/home')
+    res.redirect('/home', {tripListing : trips})
 })
 
 

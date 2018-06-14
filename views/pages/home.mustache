@@ -1,7 +1,7 @@
 <html>
-
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <head>
-    <link rel="icon" type="image/x-icon" href="http://example.com/favicon.ico" />
+    
     
      <title>Trip sitter</title>
     
@@ -9,10 +9,19 @@
 
     <body>
 
+    <form style="inline" action="/home" method="get">
+    <input type="submit" name="home" value="home"/>
+    </form>
+
+    <form action="/login" method="get">
+    <input type="submit" name="login" value="login"/>
+    </form>
+
+
         <h1>Track your trips!</h1>
         <h3>Name of city</h3>
 
-        <form action="/trips" method="post">
+        <form action="/home" method="post">
         <input type="text" name="title"/>
         <h3>Image of trip</h3>
         <input type="text" name="imageURL"/>
@@ -25,11 +34,12 @@
 
          {{! starting of the loop  }}
         {{#tripListing}}
-
+            <form action="/deleteTrip" method="post">
             <div>{{title}}</div>
             <img src='{{imageURL}}' width="200" height="200" />
             <input type="hidden" name="tripId" value='{{tripId}}' />
             <input type="submit" value="Delete" />
+            </form>
 
         {{/tripListing}}
 
